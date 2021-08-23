@@ -4,7 +4,6 @@ ISO/IEC 19464:2014 - Advanced Message Queuing Protocol (AMQP) 1.0 layer for Scap
 
 import struct
 
-from scapy.error import Scapy_Exception
 from scapy.layers.inet import TCP
 from scapy.fields import Field, IntField, ByteField, ByteEnumField, ShortField
 from scapy.packet import Packet, bind_layers
