@@ -14,7 +14,7 @@ $ python3 -m pip install scapy
 
 ## Example of Usage
 
-`Chiton` is designed to be imported as a library in any project, and it follows the client/server model The client is responsible of exfiltrate data:
+`Chiton` is designed to be imported as a library in any project, and it follows the client/server model. The client is responsible of exfiltrate data:
 
 ```Python
 import sys
