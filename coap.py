@@ -19,29 +19,29 @@ class CoAPMethods(Enum):
 class CoAP(protocol.Protocol):
     def __init__(self, pkt=CoAPMethods.POST, dport=PORT):
         super().__init__()
-        self.transport = inet.UDP
+        self.transport = inet.TransportLayer.UDP
         self.pkt = self._get_packet_type(pkt)
         self.dport = dport
 
     def _get_packet_type(self, packet):
         if packet == CoAPMethods.GET:
-            return URI(code=CoAPMethods.GET.value)
+            return URI(type_=CoAPMethods.GET)
         elif packet == CoAPMethods.POST:
-            return Payload(code=CoAPMethods.POST.value)
+            return Payload(type_=CoAPMethods.POST)
         elif packet == CoAPMethods.PUT:
-            return Payload(code=CoAPMethods.PUT.value)
+            return Payload(type_=CoAPMethods.PUT)
         elif packet == CoAPMethods.DELETE:
-            return URI(code=CoAPMethods.DELETE.value)
+            return URI(type_=CoAPMethods.PUT)
 
         raise ValueError('CoAP method not supported')
 
     def encode(self, data):
         for chunk in self.pkt.chunk(data, self.pkt.payload_length):
             message_id = next(self.counter)
-            yield self.pkt.craft(chunk, message_id)
+            yield bytes(self.pkt.craft(chunk, message_id))
         
         """ Send end message """
-        yield self.pkt.craft(b'', message_id=protocol.EOF)
+        yield bytes(self.pkt.craft(b'', message_id=protocol.EOF))
 
     def decode(self, data):
         return self.pkt.dissect(data)
@@ -49,12 +49,12 @@ class CoAP(protocol.Protocol):
 class URI(protocol.Packet):
     USEFUL_PAYLOAD = 250
 
-    def __init__(self, code, payload_length=USEFUL_PAYLOAD):
-        self.code = code
+    def __init__(self, type_, payload_length=USEFUL_PAYLOAD):
+        self.type = type_
         self.payload_length = payload_length
 
     def craft(self, data, message_id):
-        packet = coap.CoAP(code=self.code, msg_id=message_id, token=data[:0x08])
+        packet = coap.CoAP(code=self.type.value, msg_id=message_id, token=data[:0x08])
 
         options = []
         for chunk in self.chunk(data[0x08:], size=63):
@@ -62,7 +62,7 @@ class URI(protocol.Packet):
 
         packet.options = options
 
-        return bytes(packet)
+        return packet
 
     def dissect(self, data):
         packet = coap.CoAP(data)
@@ -81,12 +81,12 @@ class URI(protocol.Packet):
 class Payload(protocol.Packet):
     USEFUL_PAYLOAD = 1245
 
-    def __init__(self, code, payload_length=USEFUL_PAYLOAD):
-        self.code = code
+    def __init__(self, type_, payload_length=USEFUL_PAYLOAD):
+        self.type = type_
         self.payload_length = payload_length
 
     def craft(self, data, message_id):
-        pkt = coap.CoAP(code=self.code, msg_id=message_id, token=data[:0x08], paymark=b'\xff')      # paymark to indicate beginning of the payload
+        pkt = coap.CoAP(code=self.type.value, msg_id=message_id, token=data[:0x08], paymark=b'\xff')      # paymark to indicate beginning of the payload
 
         options = [('Uri-Path', data[0x08:0x08+0xff])]
         """ application/octet-stream """
@@ -95,7 +95,7 @@ class Payload(protocol.Packet):
 
         pkt /= base.Raw(data[0x08+0xff:])
 
-        return bytes(pkt)
+        return pkt
 
     def dissect(self, data):
         pkt = coap.CoAP(data)

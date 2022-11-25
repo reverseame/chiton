@@ -28,7 +28,7 @@ class MQTTControlPackets(Enum):
 class MQTT(protocol.Protocol):
     def __init__(self, pkt=MQTTControlPackets.PUBLISH, dport=PORT):
         super().__init__()
-        self.transport = inet.TCP
+        self.transport = inet.TransportLayer.TCP
         self.pkt = self._get_packet_type(pkt)
         self.dport = dport
 

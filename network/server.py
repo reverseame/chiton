@@ -21,10 +21,10 @@ class Server():
         self.src = src
         self.buff_size = buff_size
 
-        if self.protocol.transport == inet.UDP:
+        if self.protocol.transport == inet.TransportLayer.UDP:
             self.socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
             self.socket.bind((self.src, self.protocol.dport))
-        elif self.protocol.transport == inet.TCP:
+        elif self.protocol.transport == inet.TransportLayer.TCP:
             self.socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
             self.socket.bind((self.src, self.protocol.dport))
             self.socket.listen(1)       # Support only one client
@@ -32,9 +32,9 @@ class Server():
             raise ValueError('Transport layer not suppported')
 
     def recv(self):
-        if self.protocol.transport == inet.UDP:
+        if self.protocol.transport == inet.TransportLayer.UDP:
             return self._recvfrom()
-        elif self.protocol.transport == inet.TCP:
+        elif self.protocol.transport == inet.TransportLayer.TCP:
             return self._recv()
 
     def _recvfrom(self):

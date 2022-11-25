@@ -22,7 +22,7 @@ class AMQPPerformatives(Enum):
 class AMQP(protocol.Protocol):
     def __init__(self, packet=AMQPPerformatives.TRANSFER, dport=PORT):
         super().__init__()
-        self.transport = inet.TCP
+        self.transport = inet.TransportLayer.TCP
         self.packet = self._get_packet_type(packet)
         self.dport = dport
 
