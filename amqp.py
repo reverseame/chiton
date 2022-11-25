@@ -23,7 +23,7 @@ class AMQP(protocol.Protocol):
     def __init__(self, packet=AMQPPerformatives.TRANSFER, dport=PORT):
         super().__init__()
         self.transport = inet.TransportLayer.TCP
-        self.packet = self._get_packet_type(packet)
+        self.pkt = self._get_packet_type(packet)
         self.dport = dport
 
     def _get_packet_type(self, packet):
@@ -33,11 +33,11 @@ class AMQP(protocol.Protocol):
         raise ValueError('AMQP performative not supported')
 
     def encode(self, data):
-        for chunk in self.packet.chunk(data, self.packet.payload_length):
-            yield self.packet.craft(chunk)
+        for chunk in self.pkt.chunk(data, self.pkt.payload_length):
+            yield bytes(self.pkt.craft(chunk))
 
     def decode(self, data):
-        return self.packet.dissect(data)
+        return self.pkt.dissect(data)
 
 
 class AMQPTransfer(protocol.Packet):
@@ -52,7 +52,7 @@ class AMQPTransfer(protocol.Packet):
 
         p.delivery_id = 0xffffffff if final else 0x00000000
 
-        return bytes(p)
+        return p
 
     def dissect(self, data):
         if len(data) == 0:

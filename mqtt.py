@@ -42,7 +42,7 @@ class MQTT(protocol.Protocol):
 
     def encode(self, data):
         for chunk in self.pkt.chunk(data, self.pkt.payload_length):
-            yield self.pkt.craft(chunk)
+            yield bytes(self.pkt.craft(chunk))
 
     def decode(self, data):
         if len(data) > self.pkt.PACKET_SIZE:
@@ -69,7 +69,7 @@ class MQTTConnect(protocol.Packet):
 
         p.reserved = 1 if final else 0
 
-        return bytes(p)
+        return p
 
     def dissect(self, data):
         payload = b''
@@ -93,9 +93,9 @@ class MQTTPublish(protocol.Packet):
 
     def craft(self, data, final=False):
         if final: 
-            return bytes(mqtt.MQTT(QOS=1)/mqtt.MQTTPublish(msgid=1, topic=b'\x00', value='\x00'))
+            return mqtt.MQTT(QOS=1)/mqtt.MQTTPublish(msgid=1, topic=b'\x00', value='\x00')
         else:
-            return  bytes(mqtt.MQTT(QOS=1)/mqtt.MQTTPublish(msgid=0, topic=data[:255], value=data[255:]))
+            return mqtt.MQTT(QOS=1)/mqtt.MQTTPublish(msgid=0, topic=data[:255], value=data[255:])
 
     def dissect(self, data):
         if len(data) == 0:
