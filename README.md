@@ -4,6 +4,8 @@
 
 [`Chiton`](https://dle.rae.es/?w=chit%C3%B3n) is a Python library to exfiltrate data encapsulating the data into IoT protocol’s packets. The library allows you to encapsulate/de-encapsulate binary data into/from a protocol packets, and send/receive protocol packets to another host over Internet.
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
 ## Dependencies
 
 `Chiton` relies on [Scapy Project](https://scapy.net/) to encapsulate/de-encapsulate binary data. It can be installed by the following command:
